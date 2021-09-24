@@ -15,6 +15,7 @@ class Gui(Utils):
         self.create_listbox()
         self.create_buttons_entry()
         self.create_entry_url()
+        self.create_buttons_download()
 
         self.clear()
 
@@ -56,15 +57,27 @@ class Gui(Utils):
 
         self.frame_buttons_entry.pack()
 
-
     def create_entry_url(self):
         print("create_entry_url")
         self.frame_entry_url = Frame(self.tk)
 
         self.entry_url = Entry(self.frame_entry_url, width=60)
-        self.entry_url.pack(side=TOP)
+        self.entry_url.pack()
+
+        Label(self.frame_entry_url, text="Was soll heruntergeladen werden?").pack()
 
         self.frame_entry_url.pack()
+
+    def create_buttons_download(self):
+        print("create_buttons_download")
+        self.frame_buttons_download = Frame(self.tk)
+
+        self.button_download_audio = Button(self.frame_buttons_download, text="Audio")
+        self.button_download_video = Button(self.frame_buttons_download, text="Video")
+        self.button_download_audio.grid(row=1, column=0)
+        self.button_download_video.grid(row=1, column=1)
+
+        self.frame_buttons_download.pack()
 
     def insert_to_listbox(self, url):
         url_length = len(self.entry_url.get())
