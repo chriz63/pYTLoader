@@ -1,10 +1,15 @@
+import os
 from tkinter import *
+from tkinter import filedialog
 from tkinter.ttk import *
 from lib.utils import Utils
+from os import startfile, system
 
 class Gui(Utils):
 
     tk = Tk()
+    downloadtype = IntVar()
+    dirname = None
 
     def __init__(self):
         print("Initializing pYTLoader...")
@@ -28,8 +33,8 @@ class Gui(Utils):
         self.menu_file = Menu(self.menubar, tearoff=0)
         self.menu_info = Menu(self.menubar, tearoff=0)
 
-        self.menu_file.add_command(label="Speicherort wählen")
-        self.menu_file.add_command(label="Speicherort öffnen")
+        self.menu_file.add_command(label="Speicherort wählen", command=self.select_directory)
+        self.menu_file.add_command(label="Speicherort öffnen", command=self.open_directory)
         self.menu_file.add_command(label="Beenden", command=self.quit)
 
         self.menu_info.add_command(label="Info")
@@ -74,16 +79,18 @@ class Gui(Utils):
         print("create_buttons_download")
         self.frame_buttons_download = Frame(self.tk)
 
-        self.button_download_audio = Button(self.frame_buttons_download, text="Audio")
-        self.button_download_video = Button(self.frame_buttons_download, text="Video")
-        self.button_download_audio.grid(row=1, column=0)
-        self.button_download_video.grid(row=1, column=1)
+        self.button_select_audio = Radiobutton(self.frame_buttons_download, text="Audio", variable=self.downloadtype, value=1)
+        self.button_select_video = Radiobutton(self.frame_buttons_download, text="Video", variable=self.downloadtype, value=2)
+        self.button_select_audio.grid(row=1, column=0)
+        self.button_select_video.grid(row=1, column=1)
 
         self.frame_buttons_download.pack()
 
     def create_progressbar(self):
+        print("create_progressbar")
         self.frame_progressbar = Frame(self.tk)
-        self.progress_bar = Progressbar(self.frame_progressbar, orient=HORIZONTAL, length=100, mode="determinate").pack()
+        self.button_download = Button(self.frame_progressbar, text="Start Download").pack()
+        self.progress_bar = Progressbar(self.frame_progressbar, orient=HORIZONTAL, length=350, mode="determinate").pack()
         self.frame_progressbar.pack()
 
     def insert_to_listbox(self, url):
@@ -98,6 +105,15 @@ class Gui(Utils):
             print("remove_from_listbox")
             self.listbox_url.delete(i)
 
+    def select_directory(self):
+        self.dirname = filedialog.askdirectory()
+
+    def open_directory(self):
+        if self.dirname is not None:
+            if self.get_os() == "Windows":
+                os.startfile(self.dirname)
+            elif self.get_os() == "Linux":
+                os.system('open "%s"' % self.dirname)
 
     def mainloop(self):
         print("mainloop")
