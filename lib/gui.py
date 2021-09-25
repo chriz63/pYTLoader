@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter.ttk import *
 from lib.utils import Utils
 
 class Gui(Utils):
@@ -16,6 +17,7 @@ class Gui(Utils):
         self.create_buttons_entry()
         self.create_entry_url()
         self.create_buttons_download()
+        self.create_progressbar()
 
         self.clear()
 
@@ -79,11 +81,17 @@ class Gui(Utils):
 
         self.frame_buttons_download.pack()
 
+    def create_progressbar(self):
+        self.frame_progressbar = Frame(self.tk)
+        self.progress_bar = Progressbar(self.frame_progressbar, orient=HORIZONTAL, length=100, mode="determinate").pack()
+        self.frame_progressbar.pack()
+
     def insert_to_listbox(self, url):
         url_length = len(self.entry_url.get())
         if url_length > 0:
             print("insert_to_listbox")
             self.listbox_url.insert(END, url)
+        self.entry_url.delete(0, END)
 
     def remove_from_listbox(self):
         for i in self.listbox_url.curselection():
