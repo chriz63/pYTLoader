@@ -89,8 +89,10 @@ class Gui(Utils):
     def create_progressbar(self):
         print("create_progressbar")
         self.frame_progressbar = Frame(self.tk)
-        self.button_download = Button(self.frame_progressbar, text="Start Download").pack()
-        self.progress_bar = Progressbar(self.frame_progressbar, orient=HORIZONTAL, length=350, mode="determinate").pack()
+        self.button_download = Button(self.frame_progressbar, text="Start Download", command=self.testProgBar).pack()
+        self.progress_bar = Progressbar(self.frame_progressbar, orient=HORIZONTAL, length=350, mode="determinate")
+
+        self.progress_bar.pack()
         self.frame_progressbar.pack()
 
     def insert_to_listbox(self, url):
@@ -104,6 +106,19 @@ class Gui(Utils):
         for i in self.listbox_url.curselection():
             print("remove_from_listbox")
             self.listbox_url.delete(i)
+
+    '''
+    Testing Function
+    '''
+    def testProgBar(self):
+        from time import sleep
+        percentage = 0
+        for i in range(6):
+            print("i " + str(i) + " percentage " + str(percentage))
+            self.progress_bar['value'] = percentage
+            self.tk.update_idletasks()
+            percentage = percentage + 20
+            sleep(1)
 
     def select_directory(self):
         self.dirname = filedialog.askdirectory()
