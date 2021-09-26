@@ -1,17 +1,32 @@
 import os
+import youtube_dl
 from tkinter import *
 from tkinter import filedialog
 from tkinter.ttk import *
-from lib.utils import Utils
 from os import startfile, system
+from threading import Thread
+
+from lib.utils import Utils
+
+class Logger(object):
+    def debug(self, msg):
+        pass
+    def warning(self, msg):
+        pass
+    def error(self, msg):
+        print(msg)
 
 class Gui(Utils):
 
     tk = Tk()
+
+    status = ''
+    percentage = 0
     downloadtype = IntVar()
     dirname = None
 
     def __init__(self):
+        super().__init__()
         print("Initializing pYTLoader...")
         self.tk.title("pYTLoader")
         self.tk.geometry("400x400")
@@ -89,7 +104,7 @@ class Gui(Utils):
     def create_progressbar(self):
         print("create_progressbar")
         self.frame_progressbar = Frame(self.tk)
-        self.button_download = Button(self.frame_progressbar, text="Start Download", command=self.testProgBar).pack()
+        self.button_download = Button(self.frame_progressbar, text="Start Download", command=self.testDownload).pack()
         self.progress_bar = Progressbar(self.frame_progressbar, orient=HORIZONTAL, length=350, mode="determinate")
 
         self.progress_bar.pack()
@@ -110,6 +125,15 @@ class Gui(Utils):
     '''
     Testing Function
     '''
+    def testDownload(self):
+        print("testDownload")
+        print(self.downloadtype.get())
+        #download_thread = Thread(self.download(downloadtype=self.get_download_type(), savepath=self.dirname, url="https://www.youtube.com/watch?v=AsGGH_iI5p8"))
+        self.download(downloadtype=self.get_download_type(), savepath=self.dirname, url="https://www.youtube.com/watch?v=g7yIGvlnU2c")
+
+    '''
+    Testing Function
+    '''
     def testProgBar(self):
         from time import sleep
         percentage = 0
@@ -120,6 +144,12 @@ class Gui(Utils):
             percentage = percentage + 20
             sleep(1)
 
+    def get_download_type(self):
+        if self.downloadtype.get() == 1:
+            return "audio"
+        elif self.downloadtype.get() == 2:
+            return "video"
+
     def select_directory(self):
         self.dirname = filedialog.askdirectory()
 
@@ -129,6 +159,46 @@ class Gui(Utils):
                 os.startfile(self.dirname)
             elif self.get_os() == "Linux":
                 os.system('open "%s"' % self.dirname)
+
+    def download(self, downloadtype, savepath, url):
+        ytdl_options = {
+            'format': 'bestaudio/best',
+            'outtmpl': savepath + '/' + '%(title)s.%(ext)s',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192'
+            }],
+            'logger': Logger(),
+            'progress_hooks': [self.hook]
+        }
+
+        uri = [url]
+
+        if downloadtype == "audio":
+
+            with youtube_dl.YoutubeDL(ytdl_options) as ydl:
+                print("!!!")
+                thread = Thread(target=ydl.download, args=(uri,))
+                thread.start()
+                print(":)")
+
+        elif downloadtype == "video":
+
+            ytdl_options['format'] = 'bestvideo+bestaudio'
+            del ytdl_options['postprocessors']
+
+            with youtube_dl.YoutubeDL(ytdl_options) as ydl:
+                print("!!!")
+                thread = Thread(target=ydl.download, args=(uri,))
+                thread.start()
+                print(":)")
+
+    def hook(self, download):
+        if download['status'] == 'downloading':
+            self.status = download['status']
+            self.percentage = download['_percent_str'].replace('%', ' ')
+            self.progress_bar['value'] = self.percentage
 
     def mainloop(self):
         print("mainloop")
